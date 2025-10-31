@@ -43,14 +43,14 @@ pub struct StringWrapper(pub Mutex<String>);
 
 fn main() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _, cwd| {
-            Notification::new(&app.config().tauri.bundle.identifier)
-                .title("The program is already running. Please do not start it again!")
-                .body(cwd)
-                .icon("pot")
-                .show()
-                .unwrap();
-        }))
+        // .plugin(tauri_plugin_single_instance::init(|app, _, cwd| {
+        //     Notification::new(&app.config().tauri.bundle.identifier)
+        //         .title("The program is already running. Please do not start it again!")
+        //         .body(cwd)
+        //         .icon("pot")
+        //         .show()
+        //         .unwrap();
+        // }))
         .plugin(
             tauri_plugin_log::Builder::default()
                 .targets([LogTarget::LogDir, LogTarget::Stdout])
@@ -101,7 +101,10 @@ fn main() {
             }
             match get("proxy_enable") {
                 Some(v) => {
-                    if v.as_bool().unwrap() && get("proxy_host").map_or(false, |host| !host.as_str().unwrap().is_empty()) {
+                    if v.as_bool().unwrap()
+                        && get("proxy_host")
+                            .map_or(false, |host| !host.as_str().unwrap().is_empty())
+                    {
                         let _ = set_proxy();
                     }
                 }

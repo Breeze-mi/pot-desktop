@@ -5,7 +5,7 @@ import { appConfigDir, join } from '@tauri-apps/api/path';
 import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { Spacer, Button } from '@nextui-org/react';
 import { AiFillCloseCircle } from 'react-icons/ai';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { BsPinFill } from 'react-icons/bs';
 
@@ -186,7 +186,7 @@ export default function Translate() {
                 }
             }
         }
-        setPluginList({ ...temp });
+        setPluginList(temp);
     };
 
     useEffect(() => {
@@ -198,19 +198,17 @@ export default function Translate() {
 
     const loadServiceInstanceConfigMap = async () => {
         const config = {};
-        for (const serviceInstanceKey of translateServiceInstanceList) {
+        const allServiceLists = [
+            ...translateServiceInstanceList,
+            ...recognizeServiceInstanceList,
+            ...ttsServiceInstanceList,
+            ...collectionServiceInstanceList,
+        ];
+
+        for (const serviceInstanceKey of allServiceLists) {
             config[serviceInstanceKey] = (await store.get(serviceInstanceKey)) ?? {};
         }
-        for (const serviceInstanceKey of recognizeServiceInstanceList) {
-            config[serviceInstanceKey] = (await store.get(serviceInstanceKey)) ?? {};
-        }
-        for (const serviceInstanceKey of ttsServiceInstanceList) {
-            config[serviceInstanceKey] = (await store.get(serviceInstanceKey)) ?? {};
-        }
-        for (const serviceInstanceKey of collectionServiceInstanceList) {
-            config[serviceInstanceKey] = (await store.get(serviceInstanceKey)) ?? {};
-        }
-        setServiceInstanceConfigMap({ ...config });
+        setServiceInstanceConfigMap(config);
     };
     useEffect(() => {
         if (
@@ -231,9 +229,8 @@ export default function Translate() {
     return (
         pluginList && (
             <div
-                className={`bg-background h-screen w-screen ${
-                    osType === 'Linux' && 'rounded-[10px] border-1 border-default-100'
-                }`}
+                className={`bg-background h-screen w-screen ${osType === 'Linux' ? 'rounded-[10px] border-1 border-default-100' : ''
+                    }`}
             >
                 <div
                     className='fixed top-[5px] left-[5px] right-[5px] h-[30px]'
@@ -259,14 +256,17 @@ export default function Translate() {
                             setPined(!pined);
                         }}
                     >
-                        <BsPinFill className={`text-[20px] ${pined ? 'text-primary' : 'text-default-400'}`} />
+                        <BsPinFill
+                            className={`text-[20px] transition-all duration-300 ${pined ? 'text-blue-500 rotate-0' : 'text-gray-400 rotate-45'
+                                }`}
+                        />
                     </Button>
                     <Button
                         isIconOnly
                         size='sm'
                         variant='flat'
                         disableAnimation
-                        className={`my-auto ${osType === 'Darwin' && 'hidden'} bg-transparent`}
+                        className={`my-auto bg-transparent ${osType === 'Darwin' ? 'hidden' : ''}`}
                         onPress={() => {
                             void appWindow.close();
                         }}
@@ -274,8 +274,9 @@ export default function Translate() {
                         <AiFillCloseCircle className='text-[20px] text-default-400' />
                     </Button>
                 </div>
-                <div className={`${osType === 'Linux' ? 'h-[calc(100vh-37px)]' : 'h-[calc(100vh-35px)]'} px-[8px]`}>
-                    <div className='h-full overflow-y-auto'>
+                <div className={`${osType === 'Linux' ? 'h-[calc(100vh-37px)]' : 'h-[calc(100vh-35px)]'} flex flex-col`}>
+                    {/* 固定区域：输入框和语言选择 */}
+                    <div className='pl-[8px] pr-[12px] flex-shrink-0'>
                         <div>
                             {serviceInstanceConfigMap !== null && (
                                 <SourceArea
@@ -284,10 +285,13 @@ export default function Translate() {
                                 />
                             )}
                         </div>
-                        <div className={`${hideLanguage && 'hidden'}`}>
+                        <div className={hideLanguage ? 'hidden' : ''}>
                             <LanguageArea />
                             <Spacer y={2} />
                         </div>
+                    </div>
+                    {/* 可滚动区域：翻译结果 */}
+                    <div className='flex-1 overflow-y-auto pl-[8px] pr-[12px]'>
                         <DragDropContext onDragEnd={onDragEnd}>
                             <Droppable
                                 droppableId='droppable'
@@ -304,33 +308,35 @@ export default function Translate() {
                                                 const config = serviceInstanceConfigMap[serviceInstanceKey] ?? {};
                                                 const enable = config['enable'] ?? true;
 
-                                                return enable ? (
-                                                    <Draggable
-                                                        key={serviceInstanceKey}
-                                                        draggableId={serviceInstanceKey}
-                                                        index={index}
-                                                    >
-                                                        {(provided) => (
-                                                            <div
-                                                                ref={provided.innerRef}
-                                                                {...provided.draggableProps}
-                                                            >
-                                                                <TargetArea
-                                                                    {...provided.dragHandleProps}
-                                                                    index={index}
-                                                                    name={serviceInstanceKey}
-                                                                    translateServiceInstanceList={
-                                                                        translateServiceInstanceList
-                                                                    }
-                                                                    pluginList={pluginList}
-                                                                    serviceInstanceConfigMap={serviceInstanceConfigMap}
-                                                                />
-                                                                <Spacer y={2} />
-                                                            </div>
-                                                        )}
-                                                    </Draggable>
-                                                ) : (
-                                                    <></>
+                                                return (
+                                                    enable && (
+                                                        <Draggable
+                                                            key={serviceInstanceKey}
+                                                            draggableId={serviceInstanceKey}
+                                                            index={index}
+                                                        >
+                                                            {(provided) => (
+                                                                <div
+                                                                    ref={provided.innerRef}
+                                                                    {...provided.draggableProps}
+                                                                >
+                                                                    <TargetArea
+                                                                        {...provided.dragHandleProps}
+                                                                        index={index}
+                                                                        name={serviceInstanceKey}
+                                                                        translateServiceInstanceList={
+                                                                            translateServiceInstanceList
+                                                                        }
+                                                                        pluginList={pluginList}
+                                                                        serviceInstanceConfigMap={
+                                                                            serviceInstanceConfigMap
+                                                                        }
+                                                                    />
+                                                                    <Spacer y={2} />
+                                                                </div>
+                                                            )}
+                                                        </Draggable>
+                                                    )
                                                 );
                                             })}
                                     </div>

@@ -376,7 +376,7 @@ export default function TargetArea(props) {
     return (
         <Card
             shadow='none'
-            className='rounded-[10px]'
+            className='rounded-[10px] w-full'
         >
             <Toaster />
             <CardHeader
@@ -682,7 +682,7 @@ export default function TargetArea(props) {
                                         if (whetherPluginService(currentTranslateServiceInstanceKey)) {
                                             const pluginInfo =
                                                 pluginList['translate'][
-                                                    getServiceName(currentTranslateServiceInstanceKey)
+                                                getServiceName(currentTranslateServiceInstanceKey)
                                                 ];
                                             if (
                                                 newSourceLanguage in pluginInfo.language &&
@@ -858,13 +858,13 @@ export default function TargetArea(props) {
                                             <img
                                                 src={
                                                     getServiceSouceType(collectionServiceInstanceName) ===
-                                                    ServiceSourceType.PLUGIN
+                                                        ServiceSourceType.PLUGIN
                                                         ? pluginList['collection'][
-                                                              getServiceName(collectionServiceInstanceName)
-                                                          ].icon
+                                                            getServiceName(collectionServiceInstanceName)
+                                                        ].icon
                                                         : builtinCollectionServices[
-                                                              getServiceName(collectionServiceInstanceName)
-                                                          ].info.icon
+                                                            getServiceName(collectionServiceInstanceName)
+                                                        ].info.icon
                                                 }
                                                 className='h-[16px] w-[16px]'
                                             />

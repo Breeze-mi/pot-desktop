@@ -14,14 +14,20 @@ html {
 }
 
 *::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 4px 0;
 }
 
 *::-webkit-scrollbar-thumb {
-    background: #c0c1c550;
-    border-radius: 5px;
+    background: #c0c1c530;
+    border-radius: 3px;
+    transition: background 0.2s;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-    background: #c0c1c550;
+    background: #c0c1c570;
 }
